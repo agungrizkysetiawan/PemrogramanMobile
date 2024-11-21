@@ -116,7 +116,9 @@ class _StreamHomePageState extends State<StreamHomePage> {
           children: [
             Text(
               lastNumber.toString(),
-              style: const TextStyle(fontSize: 48, color: Colors.black), // Warna teks hitam untuk kontras
+              style: const TextStyle(
+                  fontSize: 48,
+                  color: Colors.black), // Warna teks hitam untuk kontras
             ),
             Text(values), // Menampilkan log dari `values`
             ElevatedButton(
@@ -160,3 +162,4 @@ class NumberStream {
     controller.close();
   }
 }
+    

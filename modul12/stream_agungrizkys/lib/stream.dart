@@ -4,22 +4,22 @@ import 'dart:async';
 //--------------prak 1
 class ColorStream {
   final List<Color> colors = [
-Colors.blueGrey,
-Colors.amber,
-Colors.deepPurple,
-Colors.lightBlue,
-Colors.teal
+    Colors.blueGrey,
+    Colors.amber,
+    Colors.deepPurple,
+    Colors.lightBlue,
+    Colors.teal
   ];
   Stream<Color> getColors() async* {
-    yield* Stream.periodic(
-  const Duration(seconds: 1), (int t) {
-    int index = t % colors.length;
-    return colors[index];
-});
+    yield* Stream.periodic(const Duration(seconds: 1), (int t) {
+      int index = t % colors.length;
+      return colors[index];
+    });
   }
 }
+
 //----------------prak 2
-  class NumberStream {
+class NumberStream {
   final StreamController<int> controller = StreamController<int>();
 
   // Method untuk menutup StreamController
@@ -32,7 +32,3 @@ Colors.teal
     controller.sink.addError('error');
   }
 }
-
-
-
- 
