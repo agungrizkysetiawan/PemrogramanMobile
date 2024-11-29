@@ -1,77 +1,89 @@
+import 'dart:io'; // Impor pustaka dart:io untuk operasi file
 import 'package:flutter/material.dart';
-import 'httphelper.dart';
-import 'pizza.dart';
-import 'pizza_detail.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Pizza API Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
+import 'package:path_provider/path_provider.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+  const MyHomePage({Key? key}) : super(key: key);
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<List<Pizza>> callPizzas() async {
-    HttpHelper helper = HttpHelper();
-    return await helper.getPizzaList();
+  String documentsPath = ''; // Menyimpan path dokumen
+  String tempPath = ''; // Menyimpan path temporary
+  late File myFile; // File untuk menulis dan membaca
+  String fileText = ''; // Menyimpan teks yang dibaca dari file
+// Method untuk mengambil direktori dokumen dan temporary
+  Future<void> getPaths() async {
+    final docDir = await getApplicationDocumentsDirectory();
+    final tempDir = await getTemporaryDirectory();
+    setState(() {
+      documentsPath = docDir.path;
+      tempPath = tempDir.path;
+    });
+  }
+
+// Method untuk menulis ke file
+  Future<bool> writeFile() async {
+    try {
+      await myFile.writeAsString('Margherita, Capricciosa, Napoli');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+// Method untuk membaca file
+  Future<bool> readFile() async {
+    try {
+      String fileContent = await myFile.readAsString();
+      setState(() {
+        fileText = fileContent;
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getPaths().then((_) {
+      myFile = File(
+          '$documentsPath/pizzas.txt'); // Membuat file pizzas.txt di direktori dokumen
+      writeFile(); // Menulis ke file setelah path didapat
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pizza List')),
-      body: FutureBuilder(
-        future: callPizzas(),
-        builder: (BuildContext context, AsyncSnapshot<List<Pizza>> snapshot) {
-          if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (BuildContext context, int position) {
-              return ListTile(
-                title: Text(snapshot.data![position].pizzaName),
-                subtitle: Text(
-                  '${snapshot.data![position].description} - \$${snapshot.data![position].price}',
-                ),
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text('Path Provider and File Operations'),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PizzaDetailScreen(),
-            ),
-          );
-        },
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text('Doc path: $documentsPath'), // Menampilkan path dokumen
+          Text('Temp path: $tempPath'), // Menampilkan path temporary
+          ElevatedButton(
+            onPressed: () => readFile(), // Membaca file ketika tombol ditekan
+            child: const Text("Read File"),
+          ),
+          Text(fileText), // Menampilkan konten file setelah dibaca
+        ],
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Flutter File Operations',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: const MyHomePage(), // Menjadikan MyHomePage sebagai halaman utama
+  ));
 }
