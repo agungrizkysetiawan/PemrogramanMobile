@@ -7,40 +7,50 @@ class HttpHelper {
   final String authority = '6r4jr.wiremockapi.cloud'; 
   final String path = 'pizzalist';
 
-  Future<List<Pizza>> getPizzaList() async {
+    Future<List<Pizza>> getPizzaList() async {
     final Uri url = Uri.https(authority, path);
-    try {
-      final http.Response result = await http.get(url);
-      if (result.statusCode == HttpStatus.ok) {
-        final List<dynamic> jsonResponse = json.decode(result.body);
-        return jsonResponse.map<Pizza>((item) => Pizza.fromJson(item)).toList();
-      } else {
-        return [];
-      }
-    } catch (e) {
-      print('Exception: $e');
+    final http.Response result = await http.get(url);
+    if (result.statusCode == HttpStatus.ok) {
+      final jsonResponse = json.decode(result.body) as List;
+
+      List<Pizza> pizzas =
+          jsonResponse.map<Pizza>((i) => 
+          Pizza.fromJson(i)).toList();
+      return pizzas;
+    } else {
       return [];
     }
   }
 
-  Future<String> postPizza(Pizza pizza) async {
-    const postPath = '/pizza';
+  Future<String> postPizza(Pizza pizza) async{
+    const postPath = '/pizza' ;
     String post = json.encode(pizza.toJson());
     Uri url = Uri.https(authority, postPath);
-    try {
-      http.Response response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: post,
-      );
-      if (response.statusCode == HttpStatus.ok || response.statusCode == 201) {
-        return 'Pizza posted successfully!';
-      } else {
-        return 'Failed to post pizza: ${response.statusCode}';
-      }
-    } catch (e) {
-      return 'Error posting pizza: $e';
-    }
+    http.Response r = await http.post(
+      url,
+      body: post,
+    );
+    return r.body;
+  }
+
+  Future<String> putPizza(Pizza pizza) async{
+    const putPath = '/pizza' ;
+    String put = json.encode(pizza.toJson());
+    Uri url = Uri.https(authority, putPath);
+    http.Response r = await http.put(
+      url,
+      body: put,
+    );
+    return r.body;
+  }
+  
+  Future<String> deletePizza(int id) async {
+    const deletePath = '/pizza';
+    Uri url = Uri.https(authority, deletePath);
+    http.Response r = await http.delete(
+      url,
+    );
+    return r.body;
   }
 }
 
